@@ -43,7 +43,7 @@ def minimize_pairs(numbers, target_sum, max_diff):
             return left_pairs if len(left_pairs) < len(right_pairs) else right_pairs
 
 numbers = fractions
-target_sum = 10
+target_sum = 6
 max_diff = 2
 pairs = minimize_pairs(numbers, target_sum, max_diff)
 print(pairs)
