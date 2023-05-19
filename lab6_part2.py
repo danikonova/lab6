@@ -1,49 +1,42 @@
 '''
 1 часть – написать программу в соответствии со своим вариантом задания.
 2 часть – усложнить написанную программу, введя по своему усмотрению в условие минимум одно ограничение на характеристики объектов и целевую функцию для оптимизации решения.
-Найти все возможные пары чисел из списка, сумма которых равна 10, а разница между ними не превышает 2.Целевая функция: минимизация количества пар чисел, удовлетворяющих условиям.
 Составьте все различные дроби из чисел 3, 5, 7, 11, 13, 17.
 вариант 21
 '''
+from fractions import Fraction
+from itertools import combinations
 
-#часть 2
 numbers = [3, 5, 7, 11, 13, 17]
-fractions = []
+fractions = set()
 
+#Генерация всех дробей и добавление их во множество fractions
 for i in range(len(numbers)):
-    for j in range(i+1, len(numbers)):
-        fractions.append(numbers[i]/numbers[j])
-        fractions.append(numbers[j]/numbers[i])
-print(fractions)
+    for j in range(len(numbers)):
+        fractions.add(Fraction(numbers[i], numbers[j]))
+        fractions.add(Fraction(numbers[j], numbers[i]))
+        fractions.add(Fraction(numbers[i], numbers[i]))
+        fractions.add(Fraction(numbers[j], numbers[j]))
 
+max_fractions = []
+max_sum = 0
 
-def find_pairs(numbers, target_sum, max_diff):        #перебор всех возможных пар чисел из списка numbers и проверка на удовлетворение условию задачи.
-    pairs = []
-    for i in range(len(numbers)):
-        for j in range(i+1, len(numbers)):
-            if numbers[i] + numbers[j] == target_sum and abs(numbers[i] - numbers[j]) <= max_diff:
-                pairs.append((numbers[i], numbers[j]))
-    return pairs
+#Итерация по всем возможным комбинациям дробей из fractions
+for a, b in combinations(fractions, 2):
+    a_num, a_den = a.as_integer_ratio()                                   #получаем числитель и знаменатель первой дроби из комбинации.
+    b_num, b_den = b.as_integer_ratio()                                   #получаем числитель и знаменатель второй дроби из комбинации.
+    if ((a_num + b_num) % 2 == 0) and ((a_den + b_den) % 2 == 0):
+        num_sum = int(str(a_num+b_num)[-1]) + int(str(a_den+b_den)[-1])   #складываем последние цифры суммы числителей и знаменателей.
+        if num_sum % 5 == 0:
+            if abs(num_sum) > abs(max_sum):
+                max_sum = num_sum
+                max_fractions = [(a, b)]
+            elif abs(num_sum) == abs(max_sum):
+                max_fractions.append((a, b))
 
-def minimize_pairs(numbers, target_sum, max_diff):
-    pairs = find_pairs(numbers, target_sum, max_diff)
-    if len(pairs) == 0:                                #если количество найденных пар равно 0, то функция возвращает пустой список.
-        return []
-    elif len(pairs) == 1:                              #если количество найденных пар равно 1, то функция возвращает эту пару.
-        return pairs
-    else:                                              #иначе функция разбивает список на две части и рекурсивно вызывает саму себя для каждой из этих частей.
-        mid = len(numbers) // 2
-        left_pairs = minimize_pairs(numbers[:mid], target_sum, max_diff) 
-        right_pairs = minimize_pairs(numbers[mid:], target_sum, max_diff)
-        if len(left_pairs) == 0:                       #cравнивнение результатов, полученных для левой и правой частей.
-            return right_pairs
-        elif len(right_pairs) == 0:
-            return left_pairs
-        else:
-            return left_pairs if len(left_pairs) < len(right_pairs) else right_pairs
+#Вывод результата - максимальной суммы и пары дробей
+print("Максимальная сумма по модулю 5:", abs(max_sum))
+print("Пары дробей, дающих максимальную сумму по модулю 5:")
+for fractions in max_fractions:
+    print(fractions)
 
-numbers = fractions
-target_sum = 6
-max_diff = 2
-pairs = minimize_pairs(numbers, target_sum, max_diff)
-print(pairs)
